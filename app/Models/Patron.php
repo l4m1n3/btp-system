@@ -6,5 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Patron extends Model
 {
-    //
+   protected $fillable = [
+        'nom',
+        'email',
+        'telephone'
+    ];
 }
