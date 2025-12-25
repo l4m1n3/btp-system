@@ -8,7 +8,19 @@ class Chantier extends Model
 {
      protected $fillable = [
         'nom',
+        'description',
+        'statut',
+        'adresse',
         'budget_total',
-        'patron_id'
+        'entreprise_id'
     ];
+    
+    public function entreprise()
+    {
+        return $this->belongsTo(Patron::class);
+    }
+    public function depenses()
+    {
+        return $this->hasMany(Depense::class);
+    }
 }

@@ -11,11 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('patrons', function (Blueprint $table) {
+        Schema::create('entreprises', function (Blueprint $table) {
             $table->id();
             $table->string('nom');
             $table->string('email');
-            $table->string('tel')->nullable();
+            $table->string('telephone');
+            $table->enum('abonnement', ['gratuit', 'mensuel', 'annuel'])->default('gratuit');
+            $table->date('date_debut')->nullable(); // date de début de l'abonnement
+            $table->date('date_fin')->nullable();   // date de fin de l'abonnement
+            $table->boolean('actif')->default(false); // true si abonnement actif
             $table->timestamps();
         });
     }

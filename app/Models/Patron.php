@@ -6,9 +6,16 @@ use Illuminate\Database\Eloquent\Model;
 
 class Patron extends Model
 {
+    protected $table = 'entreprises';
+
    protected $fillable = [
         'nom',
         'email',
-        'telephone'
+        'telephone',
+        'abonnement',
+        'date_debut',
+        'date_fin',
+        'actif'
+
     ];
 }

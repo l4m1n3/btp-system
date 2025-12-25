@@ -15,7 +15,10 @@ return new class extends Migration
             $table->id();
             $table->string('nom');
             $table->decimal('budget_total', 15, 2)->nullable();
-            $table->foreignId('patron_id')->constrained('patrons')->onDelete('cascade');
+            $table->string('description')->nullable();
+            $table->enum('statut', ['en_cours', 'termine', 'annule'])->default('en_cours');
+            $table->string('adresse')->nullable();
+            $table->foreignId('entreprise_id')->constrained('entreprises')->onDelete('cascade');
             $table->timestamps();
         });
     }
