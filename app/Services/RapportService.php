@@ -4,7 +4,7 @@ namespace App\Services;
 
 use App\Models\Depense;
 use App\Models\Patron;
-use App\Mail\RapportHebdomadaireMail;
+use App\Mail\RapportHebdomadaireMail; 
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;

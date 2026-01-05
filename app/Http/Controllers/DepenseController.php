@@ -30,13 +30,21 @@ class DepenseController extends Controller
             $data = $request->all();
 
             // Gestion du fichier justificatif
+            // if ($request->hasFile('justificatif')) {
+            //     $file = $request->file('justificatif');
+            //     $filename = time() . '_' . $file->getClientOriginalName();
+            //     $path = $file->storeAs('justificatifs', $filename,'public');
+            //     $data['justificatif'] = $filename; // Stocke seulement le nom du fichier
+            // }
             if ($request->hasFile('justificatif')) {
                 $file = $request->file('justificatif');
-                $filename = time() . '_' . $file->getClientOriginalName();
-                $path = $file->storeAs('public/justificatifs', $filename);
-                $data['justificatif'] = $filename; // Stocke seulement le nom du fichier
+                $filename = time().'_'.$file->getClientOriginalName();
+                $path = $file->storeAs('justificatifs', $filename, 'public');
+
+                $data['justificatif'] = $path; // recommandé
             }
 
+            // $request->file('photo')->store('photos/emp', 'public') ;
             $depense = Depense::create($data);
 
             return response()->json($depense, 201);

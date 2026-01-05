@@ -21,3 +21,4 @@ Route::get('/entreprise', [PatronController::class, 'companies'])->middleware('a
 Route::post('/entreprise', [PatronController::class, 'store'])->middleware('auth')->name('entreprise.store');
 Route::get('/entreprise/details/{id}', [PatronController::class, 'details'])->middleware('auth')->name('entreprise.details');
 Route::post('/entreprise/details/{id}/chantier', [ChantierController::class, 'store'])->middleware('auth')->name('chantier.store');
+Route::get('/rapports/entreprise/{id}', [App\Http\Controllers\RapportController::class, 'details'])->middleware('auth')->name('rapport.entreprise.details');

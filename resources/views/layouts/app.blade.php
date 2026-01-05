@@ -388,6 +388,18 @@
                     </li>    
                     <li class="nav-item">
                         <a class="nav-link" href="#">
+                            <i class="fas fa-save"></i>
+                            <span class="nav-text">Dépenses</span>
+                        </a>
+                    </li>
+                     <li class="nav-item">
+                        <a class="nav-link" href="#">
+                            <i class="fas fa-file"></i>
+                            <span class="nav-text">Rapports</span>
+                        </a>
+                    </li>
+                     <li class="nav-item">
+                        <a class="nav-link" href="#">
                             <i class="fas fa-cog"></i>
                             <span class="nav-text">Paramètres</span>
                         </a>

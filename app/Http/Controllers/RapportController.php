@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Depense;
 use App\Models\Patron;
+use App\Models\Chantier;
 use Carbon\Carbon;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Mail;
@@ -57,5 +58,13 @@ class RapportController extends Controller
         //         'mediaUrl' => [asset('storage/rapport_hebdomadaire.pdf')]
         //     ]
         // );
+    }
+    public function details($id)
+    {
+        $company = Patron::find($id);
+        $chantiers = Chantier::where('entreprise_id', $id)->paginate(5);
+        $depenses = Depense::whereIn('chantier_id', $chantiers->pluck('id'))->paginate(10);
+        // dd($depenses);
+        return view('rapport.rapport', compact('company', 'chantiers', 'depenses'));
     }
 }
