@@ -6,26 +6,51 @@ use Illuminate\Http\Request;
 use App\Models\Patron;
 use Illuminate\Support\Facades\Log;
 use App\Models\Chantier;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 
 class PatronController extends Controller
 {
-    public function dashboard()
+    public function dashboardAdmin()
     {
-        return view('dashboard');
+        $user = Auth::user();
+        return view('admin.dashboard');
     }
+    public function dashboardClient()
+    {
+        $user = Auth::user();
+        $patron = Patron::where('email', $user->email)->first();
+        // dd($patron->id);
+
+        $chantiers = Chantier::with('entreprises')
+            ->whereHas('entreprises', function ($query) use ($user) {
+                $query->where('email', $user->email);
+            })
+            ->paginate(10);
+        $Nbrchantiers = Chantier::with('entreprises')
+            ->whereHas('entreprises', function ($query) use ($user) {
+                $query->where('email', $user->email);
+            })
+            ->count();
+
+        // dd($Nbrchantiers);
+        return view('users.dashboard', compact('user', 'chantiers', 'patron','Nbrchantiers'));
+    }
+
 
     public function companies()
     {
-       $companies = Patron::orderBy('nom')->paginate(10); // ✅ retourne LengthAwarePaginator
+        $companies = Patron::orderBy('nom')->paginate(10);
 
-        return view('entreprise', compact('companies'));
+        return view('admin.entreprise', compact('companies'));
     }
     public function details($id)
     {
         $company = Patron::find($id);
         $chantiers = Chantier::where('entreprise_id', $id)->paginate(5);
         // dd($chantiers);
-        return view('detail_entreprise', compact('company', 'chantiers'));
+        return view('admin.detail_entreprise', compact('company', 'chantiers'));
     }
     public function index(Request $request)
     {
@@ -43,7 +68,7 @@ class PatronController extends Controller
 
         // --- Sinon c'est une requête web
         $request->session()->regenerate();
-        return view('entreprise', compact('patrons'));
+        return view('admin.entreprise', compact('patrons'));
     }
     public function store(Request $request)
     {
@@ -58,6 +83,13 @@ class PatronController extends Controller
             ]);
 
             $patron = Patron::create($request->all());
+
+            $password = $request->nom . '1234';
+            $user = User::create([
+                'name' => $request->nom,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+            ]);
             // $actif = true;
             if ($request->expectsJson()) {
                 // Générer un token (ex: Laravel Sanctum)
@@ -74,7 +106,7 @@ class PatronController extends Controller
             $request->session()->regenerate();
             return redirect()->back()->with('success', 'Entreprise créée avec succès');
         } catch (\Throwable $th) {
-            Log::error('Patron Creation Error', [
+            Log::error('Entreprise Creation Error', [
                 'error' => $th->getMessage(),
                 'trace' => $th->getTraceAsString(),
             ]);

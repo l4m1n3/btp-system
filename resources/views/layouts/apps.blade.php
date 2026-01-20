@@ -634,18 +634,19 @@
                 <div class="menu-section">Navigation</div>
                 <ul class="nav flex-column">
                     <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" 
-                           href="{{ route('admin.dashboard') }}">
+                        <a class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}" 
+                           href="{{ route('dashboard') }}">
                             <i class="bi bi-speedometer2"></i>
                             <span class="nav-text">Dashboard</span>
                         </a>
                     </li>
                     
                     <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('entreprise') ? 'active' : '' }}" 
-                           href="{{ route('entreprise') }}">
+                        <a class="nav-link {{ request()->routeIs('rapport.depenses.liste') ? 'active' : '' }}" 
+                           href="{{ route('rapport.depenses.liste') }}">
                             <i class="bi bi-wallet2"></i>
-                            <span class="nav-text">Entreprises</span>
+                            <span class="nav-text">Dépenses</span>
+                            
                         </a>
                     </li>
 

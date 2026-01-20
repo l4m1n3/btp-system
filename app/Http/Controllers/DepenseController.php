@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Depense;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-
+ 
 class DepenseController extends Controller
 {
     public function index()
@@ -28,14 +28,6 @@ class DepenseController extends Controller
             ]);
 
             $data = $request->all();
-
-            // Gestion du fichier justificatif
-            // if ($request->hasFile('justificatif')) {
-            //     $file = $request->file('justificatif');
-            //     $filename = time() . '_' . $file->getClientOriginalName();
-            //     $path = $file->storeAs('justificatifs', $filename,'public');
-            //     $data['justificatif'] = $filename; // Stocke seulement le nom du fichier
-            // }
             if ($request->hasFile('justificatif')) {
                 $file = $request->file('justificatif');
                 $filename = time().'_'.$file->getClientOriginalName();
@@ -57,5 +49,11 @@ class DepenseController extends Controller
                 'message' => 'Erreur lors de l\'enregistrement de la dépense'
             ], 500);
         }
+    }
+
+    public function depenseEntreprise(Request $request, $chantierId)
+    {
+        $depenses = Depense::where('chantier_id', $chantierId)->get();
+        return response()->json($depenses);
     }
 }

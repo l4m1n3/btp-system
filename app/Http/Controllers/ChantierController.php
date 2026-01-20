@@ -27,17 +27,16 @@ class ChantierController extends Controller
             ]);
             // dd( $request->all());
             $chantier = Chantier::create($request->all());
-            if ($request->expectsJson()) {
-                // Générer un token (ex: Laravel Sanctum)
-                $token = $chantier->createToken('api-token')->plainTextToken;
+            // if ($request->expectsJson()) {
+            //     // Générer un token (ex: Laravel Sanctum)
+            //     // $token = $chantier->createToken('api-token')->plainTextToken;
 
-                return response()->json([
-                    'access_token' => $token,
-                    'token_type' => 'Bearer',
-                    'chantier' => $chantier
-                ], 201);
-            }
-
+            //     return response()->json([
+            //         // 'access_token' => $token,
+            //         'token_type' => 'Bearer',
+            //         'chantier' => $chantier
+            //     ], 201);
+            // }
             // --- Sinon c'est une requête web
             return redirect()->back()->with('success', 'Chantier créé avec succès');
         } catch (\Throwable $th) {

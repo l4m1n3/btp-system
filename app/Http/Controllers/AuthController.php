@@ -17,10 +17,11 @@ class AuthController extends Controller
     }
 
 
+
     public function login(Request $request)
     {
         try {
-            // 1. Validation
+            // 1️⃣ Validation
             $validator = Validator::make($request->all(), [
                 'email' => 'required|email',
                 'password' => 'required|min:6',
@@ -33,29 +34,26 @@ class AuthController extends Controller
                 ], 422);
             }
 
-            // 2. Tentative login
+            // 2️⃣ Tentative de connexion
             if (!Auth::attempt($request->only('email', 'password'))) {
                 return response()->json([
                     'message' => 'Email ou mot de passe incorrect',
                 ], 401);
             }
 
-            // 3. Utilisateur connecté
+            // 3️⃣ Utilisateur connecté
             $user = Auth::user();
 
-            // 4. Supprimer anciens tokens (optionnel mais conseillé)
+            // 4️⃣ Nettoyage anciens tokens
             $user->tokens()->delete();
 
-            // 5. Créer token Sanctum
+            // 5️⃣ Token Sanctum (API)
             $token = $user->createToken('access_token')->plainTextToken;
 
-            // 6. Réponse complète pour Flutter
-
-             // --- Si c'est une requête API
+            /* ===================================================
+           🟢 CAS API (Flutter / mobile)
+        =================================================== */
             if ($request->expectsJson()) {
-                // Générer un token (ex: Laravel Sanctum) 
-                $token = $user->createToken('api-token')->plainTextToken;
-
                 return response()->json([
                     'access_token' => $token,
                     'token_type' => 'Bearer',
@@ -63,18 +61,27 @@ class AuthController extends Controller
                         'id' => $user->id,
                         'nom' => $user->name,
                         'email' => $user->email,
+                        'role' => $user->role,
                     ]
                 ], 200);
             }
 
-            // --- Sinon c'est une requête web
+            /* ===================================================
+           🟢 CAS WEB
+        =================================================== */
             $request->session()->regenerate();
-            return redirect()->intended('/dashboard')->with('success', 'Connexion réussie');
 
+            if ($user->role === 'admin') {
+                return redirect()->route('admin.dashboard')
+                    ->with('success', 'Bienvenue Admin');
+            } else {
+
+                return redirect()->route('dashboard')
+                    ->with('success', 'Connexion réussie');
+            }
         } catch (\Throwable $e) {
             Log::error('Login Error', [
                 'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
             ]);
 
             return response()->json([
@@ -90,10 +97,24 @@ class AuthController extends Controller
             if ($user) {
                 // Supprimer tous les tokens de l'utilisateur
                 $user->tokens()->delete();
+                Auth::logout();
 
-                return response()->json([
-                    'message' => 'Déconnexion réussie',
-                ], 200);
+
+                /* ===================================================
+           🟢 CAS API (Flutter / mobile)
+        =================================================== */
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'message' => 'Déconnexion réussie',
+                    ], 200);
+                }
+
+                /* ===================================================
+           🟢 CAS WEB
+        =================================================== */
+                $request->session()->invalidate();
+                return redirect()->route('login')
+                    ->with('success', 'Déconnexion réussie');
             } else {
                 return response()->json([
                     'message' => 'Utilisateur non authentifié',
@@ -113,20 +134,20 @@ class AuthController extends Controller
 
     public function register(Request $request)
     {
-       $request->validate([
-           'name' => 'required|string|max:255',
-           'email' => 'required|string|email|max:255|unique:users',
-           'password' => 'required|string|min:6|confirmed',
-       ]);
-         $user = User::create([
-              'name' => $request->name,
-              'email' => $request->email,
-              'password' => Hash::make($request->password),
-         ]);
-            $token = $user->createToken('auth_token')->plainTextToken;
-            return response()->json([
-                'access_token' => $token,
-                'token_type' => 'Bearer',
-            ], 201);
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:6|confirmed',
+        ]);
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+        ]);
+        $token = $user->createToken('auth_token')->plainTextToken;
+        return response()->json([
+            'access_token' => $token,
+            'token_type' => 'Bearer',
+        ], 201);
     }
 }

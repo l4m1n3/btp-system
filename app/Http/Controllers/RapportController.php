@@ -67,4 +67,94 @@ class RapportController extends Controller
         // dd($depenses);
         return view('rapport.rapport', compact('company', 'chantiers', 'depenses'));
     }
+
+    public function depenseEntreprise($id)
+    {
+
+        // $chantier = Chantier::where('entreprise_id', $id)->first(); // un seul objet
+        // dd($chantier);
+        $depenses = Depense::where('chantier_id', $id)->paginate(10);
+        // dd($depenses);
+        return view('users.depense', compact('depenses'));
+    }
+
+//     public function depenseListe(Request $request)
+// {
+//     $email = auth()->user()->email;
+//     $patron = Patron::where('email', $email)->first();
+//     // dd($patron);
+//     if (!$patron) {
+//         return redirect()->back()->withErrors('Patron non trouvé.');
+//     }
+//     // Récupérer les filtres depuis la requête
+//     $chantierId = $request->input('chantier_id');
+//     $dateDebut = $request->input('date_debut');
+//     $dateFin = $request->input('date_fin');
+
+//     // Base query
+//     $query = Depense::query();
+  
+//     // Filtrer par chantier si sélectionné
+//     if ($chantierId) {
+//         $query->where('chantier_id', $chantierId);
+//     }
+
+//     // Filtrer par dates si fournies
+//     if ($dateDebut) {
+//         $query->whereDate('date_depense', '>=', $dateDebut);
+//     }
+//     if ($dateFin) {
+//         $query->whereDate('date_depense', '<=', $dateFin);
+//     }
+
+//     // Pagination
+//     $depenses = $query->orderBy('date_depense', 'desc')->paginate(10);
+
+//     // Récupérer tous les chantiers pour le dropdown du filtre
+//     $chantiers = Chantier::orderBy('nom')->get();
+
+//     return view('users.listeDep', compact('depenses', 'chantiers'));
+// }
+public function depenseListe(Request $request)
+{
+    $email = auth()->user()->email;
+    $patron = Patron::where('email', $email)->first();
+
+    if (!$patron) {
+        return redirect()->back()->withErrors('Patron non trouvé.');
+    }
+
+    // Récupérer les filtres depuis la requête
+    $chantierId = $request->input('chantier_id');
+    $dateDebut = $request->input('date_debut');
+    $dateFin = $request->input('date_fin');
+
+    // Récupérer les chantiers du patron
+    $chantiersPatron = $patron->chantiers()->pluck('id')->toArray();
+
+    // Base query : uniquement les dépenses liées aux chantiers du patron
+    $query = Depense::whereIn('chantier_id', $chantiersPatron);
+
+    // Filtrer par chantier si sélectionné et si appartient au patron
+    if ($chantierId && in_array($chantierId, $chantiersPatron)) {
+        $query->where('chantier_id', $chantierId);
+    }
+
+    // Filtrer par dates si fournies
+    if ($dateDebut) {
+        $query->whereDate('date_depense', '>=', $dateDebut);
+    }
+    if ($dateFin) {
+        $query->whereDate('date_depense', '<=', $dateFin);
+    }
+
+    // Pagination
+    $depenses = $query->orderBy('date_depense', 'desc')->paginate(10);
+
+    // Récupérer tous les chantiers du patron pour le dropdown du filtre
+    $chantiers = $patron->chantiers()->orderBy('nom')->get();
+
+    return view('users.listeDep', compact('depenses', 'chantiers'));
+}
+
 }

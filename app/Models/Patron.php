@@ -18,4 +18,9 @@ class Patron extends Model
         'actif'
 
     ];
+
+    public function chantiers()
+    {
+        return $this->hasMany(Chantier::class, 'entreprise_id');
+    }
 }

@@ -15,12 +15,16 @@ class Chantier extends Model
         'entreprise_id'
     ];
     
-    public function entreprise()
+    public function entreprises()
     {
-        return $this->belongsTo(Patron::class);
+        return $this->belongsTo(Patron::class, 'entreprise_id');
     }
     public function depenses()
     {
         return $this->hasMany(Depense::class);
+    }
+    public function devis()
+    {
+        return $this->hasMany(Devis::class);
     }
 }

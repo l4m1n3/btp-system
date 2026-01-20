@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Rapports de l\'entreprise - ' . $company->nom)
+@section('title', 'Rapports de l\'entreprise - ')
 
 @section('content')
 <div class="container-fluid">
@@ -11,7 +11,7 @@
             <p class="text-muted">Gérez les rapports de l'entreprise</p>
         </div>
 
-        
+         
     </div>
      <!-- Autres informations (à compléter selon tes besoins) -->
             <div class="card border-0 shadow-sm mb-4">

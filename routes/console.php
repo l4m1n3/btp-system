@@ -8,15 +8,47 @@ use App\Services\RapportService;
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
+// 📅 Rapport quotidien à 18h
+Schedule::call(function (RapportService $rapportService) {
+    $rapportService->envoyerRapportQuotidien();
+})
+    ->dailyAt('18:00')
+    ->timezone('Europe/Paris')
+    ->name('rapport-quotidien')
+    ->withoutOverlapping(600)
+    ->onOneServer()
+    ->when(fn() => app()->environment('production'));
+
+
+// 📅 Rapport hebdomadaire chaque lundi à 18h
 Schedule::call(function (RapportService $rapportService) {
     $rapportService->envoyerRapportHebdomadaire();
 })
-    ->name('rapport.hebdomadaire')
-    ->description('Envoi automatique du rapport récapitulatif de la semaine')
-    ->weeklyOn(1, '08:00')           // ← lundi matin 8h
-    // ->weekly()                    // ← lundi 00:00 par défaut (moins précis)
-    // ->sundays()->at('23:45')      // ← autre option très courante
+    ->weeklyOn(1, '18:00') // 1 = lundi
     ->timezone('Europe/Paris')
-    ->withoutOverlapping(600)         // bloque 10 minutes si ça prend trop de temps
-    ->onOneServer()                   // important si tu as plusieurs serveurs
-    ->when(fn () => app()->environment('production')); // uniquement en prod
+    ->name('rapport-hebdomadaire')
+    ->withoutOverlapping(600)
+    ->onOneServer()
+    ->when(fn() => app()->environment('production'));
+
+// 📅 Rapport mensuel chaque 1er du mois à 18h
+Schedule::call(function (RapportService $rapportService) {
+    $rapportService->envoyerRapportMensuel();
+})
+    ->monthlyOn(1, '18:00')
+    ->timezone('Europe/Paris')
+    ->name('rapport-mensuel')
+    ->withoutOverlapping(600)
+    ->onOneServer()
+    ->when(fn() => app()->environment('production'));
+
+// 📅 Rapport annuel chaque 1er janvier à 18h
+Schedule::call(function (RapportService $rapportService) {
+    $rapportService->envoyerRapportAnnuel();
+})
+    ->yearlyOn(1, 1, '18:00') // 1er janvier
+    ->timezone('Europe/Paris')
+    ->name('rapport-annuel')
+    ->withoutOverlapping(600)
+    ->onOneServer()
+    ->when(fn() => app()->environment('production'));

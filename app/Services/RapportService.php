@@ -4,117 +4,81 @@ namespace App\Services;
 
 use App\Models\Depense;
 use App\Models\Patron;
-use App\Mail\RapportHebdomadaireMail; 
+use App\Mail\RapportHebdomadaireMail;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 
 class RapportService
 {
-    /**
-     * Générer et envoyer le rapport hebdomadaire
-     */
+    public function envoyerRapportQuotidien(): void
+    {
+        $this->envoyerRapport(Carbon::today()->startOfDay(), Carbon::today()->endOfDay(), 'quotidien');
+    }
+
     public function envoyerRapportHebdomadaire(): void
     {
-        // 📅 Période : semaine en cours
-        $start = Carbon::now()->startOfWeek();
-        $end   = Carbon::now()->endOfWeek();
+        $this->envoyerRapport(Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek(), 'hebdomadaire');
+    }
 
-        // 💰 Dépenses de la semaine
+    public function envoyerRapportMensuel(): void
+    {
+        $this->envoyerRapport(Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth(), 'mensuel');
+    }
+
+    public function envoyerRapportAnnuel(): void
+    {
+        $this->envoyerRapport(Carbon::now()->startOfYear(), Carbon::now()->endOfYear(), 'annuel');
+    }
+
+    /**
+     * Méthode générique pour générer PDF et envoyer par email
+     */
+    private function envoyerRapport(Carbon $start, Carbon $end, string $type): void
+    {
         $depenses = Depense::whereBetween('date_depense', [$start, $end])
             ->with('chantier')
             ->get();
 
         if ($depenses->isEmpty()) {
+            Log::info("Aucune dépense pour le rapport $type entre $start et $end.");
             return;
         }
 
-        // 👔 Patron
-        $patron = Patron::first(); // ou ->where('actif', true)->first()
-
+        $patron = Patron::first();
         if (!$patron) {
+            Log::error("Pas de patron trouvé pour le rapport $type.");
             return;
         }
 
-        // 📄 Génération PDF
-        $pdf = Pdf::loadView('pdf.rapport_hebdomadaire', [
+        // Génération PDF
+        $pdf = Pdf::loadView('pdf.rapport', [
             'depenses' => $depenses,
             'start' => $start,
             'end' => $end,
             'patron' => $patron,
+            'type' => $type,
         ]);
 
-        $fileName = 'rapport_depenses_' . now()->format('Y_m_d') . '.pdf';
-        $filePath = storage_path('app/rapports/' . $fileName);
-
-        if (!file_exists(storage_path('app/rapports'))) {
-            mkdir(storage_path('app/rapports'), 0755, true);
+        $folder = storage_path('app/rapports');
+        if (!file_exists($folder)) {
+            mkdir($folder, 0755, true);
         }
 
+        $fileName = "rapport_{$type}_" . now()->format('Y_m_d_H_i_s') . ".pdf";
+        $filePath = $folder . '/' . $fileName;
         file_put_contents($filePath, $pdf->output());
+        Log::info("Rapport $type généré : $fileName");
 
-        // 📧 Envoi par email
+        // Envoi email
         if ($patron->email) {
-            Mail::to($patron->email)
-                ->send(new RapportHebdomadaireMail($filePath));
+            try {
+                Mail::to($patron->email)->send(new RapportHebdomadaireMail($filePath));
+                Log::info("Rapport $type envoyé par email à {$patron->email}");
+            } catch (\Exception $e) {
+                Log::error("Erreur email rapport $type : " . $e->getMessage());
+            }
         }
-
-        // 📱 Envoi WhatsApp
-        // if ($patron->telephone) {
-        //     $this->envoyerWhatsapp($patron->telephone, $filePath);
-        // }
     }
-
-    /**
-     * Envoi WhatsApp (à adapter selon l'API utilisée)
-     */
-    // private function envoyerWhatsapp(string $numero, string $filePath): void
-    // {
-    //     $token = config('services.whatsapp.token');
-    //     $phone_number_id = config('services.whatsapp.phone_number_id');
-
-    //     // Vérifier que le fichier existe
-    //     if (!file_exists($filePath)) {
-    //         Log::error("Fichier PDF introuvable: $filePath");
-    //         return;
-    //     }
-
-    //     // 📤 Upload du fichier PDF sur WhatsApp
-    //     $fileData = base64_encode(file_get_contents($filePath));
-    //     $fileName = basename($filePath);
-
-    //     $mediaResponse = Http::withToken($token)
-    //         ->post("https://graph.facebook.com/v17.0/$phone_number_id/media", [
-    //             'messaging_product' => 'whatsapp',
-    //             'file' => $fileData,
-    //             'type' => 'application/pdf',
-    //             'filename' => $fileName,
-    //         ]);
-
-    //     if (!$mediaResponse->successful()) {
-    //         Log::error('Erreur upload PDF WhatsApp: '.$mediaResponse->body());
-    //         return;
-    //     }
-
-    //     $mediaId = $mediaResponse->json()['id'];
-
-    //     // 📩 Envoi du message avec le PDF
-    //     $messageResponse = Http::withToken($token)
-    //         ->post("https://graph.facebook.com/v17.0/$phone_number_id/messages", [
-    //             'messaging_product' => 'whatsapp',
-    //             'to' => $numero,
-    //             'type' => 'document',
-    //             'document' => [
-    //                 'id' => $mediaId,
-    //                 'caption' => 'Voici votre rapport hebdomadaire',
-    //             ],
-    //         ]);
-
-    //     if (!$messageResponse->successful()) {
-    //         Log::error('Erreur envoi WhatsApp: '.$messageResponse->body());
-    //     }
-    // }
 }
