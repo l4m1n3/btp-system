@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Patron;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -43,6 +44,7 @@ class AuthController extends Controller
 
             // 3️⃣ Utilisateur connecté
             $user = Auth::user();
+            $entrepriseId = Patron::where('email', $user->email)->first();
 
             // 4️⃣ Nettoyage anciens tokens
             $user->tokens()->delete();
@@ -62,6 +64,7 @@ class AuthController extends Controller
                         'nom' => $user->name,
                         'email' => $user->email,
                         'role' => $user->role,
+                        'entreprise_id' => $entrepriseId ? $entrepriseId->id : null,
                     ]
                 ], 200);
             }

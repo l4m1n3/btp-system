@@ -118,7 +118,7 @@
                                         @endif
                                     </td>
                                     <td class="text-end">
-                                        <a href="{{ route('rapport.entreprise.details', $chantier->id) }}" class="btn btn-sm btn-outline-dark me-1">
+                                        <a href="" class="btn btn-sm btn-outline-dark me-1">
                                             <i class="fas fa-file"></i>
                                         </a>
                                         <a href="#" class="btn btn-sm btn-outline-primary me-1">
