@@ -292,6 +292,91 @@
         </div>
         @endif
     </div>
+    <div class="modal fade" id="addDepenseModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+
+                <div class="modal-header">
+                    <h5 class="modal-title fw-semibold">
+                        <i class="bi bi-cash-coin text-primary me-2"></i>Nouvelle Dépense
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form action="{{ route('depenses.stores') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+
+                    <input type="hidden" name="chantier_id" value="{{ $depense->chantier_id }}">
+
+                    <div class="modal-body">
+                        <div class="row g-3">
+
+                            {{-- Planning --}}
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Planning <span class="text-danger">*</span></label>
+                                <select name="planning_id" class="form-select" required>
+                                    <option value="">Sélectionnez un planning</option>
+                                    @foreach ($planning as $plan)
+                                        <option value="{{ $plan->id }}">
+                                            {{ $plan->activite }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            {{-- Catégorie --}}
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Catégorie</label>
+                                <select name="categorie" class="form-select" required>
+                                    <option value="">Sélectionnez</option>
+                                    <option value="Matériaux">Matériaux</option>
+                                    <option value="Main d'œuvre">Main d'œuvre</option>
+                                    <option value="Transport">Transport</option>
+                                    <option value="Équipement">Équipement</option>
+                                    <option value="Autre">Autre</option>
+                                </select>
+                            </div>
+
+                            {{-- Description --}}
+                            <div class="col-12">
+                                <label class="form-label fw-semibold">Description</label>
+                                <textarea name="description" class="form-control" required></textarea>
+                            </div>
+
+                            {{-- Montant --}}
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Montant</label>
+                                <input type="number" name="montant" class="form-control" required>
+                            </div>
+
+                            {{-- Responsable --}}
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Responsable</label>
+                                <input type="text" name="responsable" class="form-control">
+                            </div>
+
+                            {{-- Date --}}
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Date</label>
+                                <input type="date" name="date_depense" class="form-control">
+                            </div>
+
+                            {{-- Justificatif --}}
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Justificatif</label>
+                                <input type="file" name="justificatif" class="form-control" accept=".jpg,.jpeg,.png,.pdf">
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Annuler</button>
+                        <button type="submit" class="btn btn-primary">Enregistrer</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
 
 <style>

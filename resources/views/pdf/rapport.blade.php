@@ -50,8 +50,9 @@
         </div>
     </div>
     <div class="report-info">
-        <h2 class="report-title">Rapport {{ ucfirst($type) }} des Dépenses</h2>
-        <div class="period">Période : {{ $start->format('d/m/Y') }} - {{ $end->format('d/m/Y') }}</div>
+        <h2 class="report-title">Rapport des Dépenses</h2>
+         {{-- <h2 class="report-title">Rapport {{ ucfirst($type) }} des Dépenses</h2> --}}
+        {{-- <div class="period">Période : {{ $start->format('d/m/Y') }} - {{ $end->format('d/m/Y') }}</div> --}}
         <div style="margin-top:10px; font-size:10px; color:#666;">Généré le : {{ now()->format('d/m/Y à H:i') }}</div>
     </div>
 </div>
@@ -62,6 +63,7 @@
         <tr>
             <th>Date</th>
             <th>Chantier</th>
+            <th>Planning\</th>
             <th>Catégorie</th>
             <th>Description</th>
             <th>Montant (FCFA)</th>
@@ -85,6 +87,7 @@
             <tr>
                 <td class="date-cell">{{ \Carbon\Carbon::parse($depense->date_depense)->format('d/m/Y') }}</td>
                 <td class="chantier-cell">{{ $depense->chantier->nom ?? '-' }}</td>
+                <td>{{$depense->planning->activite ?? '-' }}</td>
                 <td><span class="categorie-badge {{ $categorieClass }}">{{ $depense->categorie }}</span></td>
                 <td>{{ $depense->description }}</td>
                 <td class="{{ $montantClass }}" style="text-align:right;">{{ number_format($depense->montant,0,',',' ') }}</td>
@@ -103,10 +106,10 @@
         </div>
     </div>
 </div>
-
+ 
 <!-- Pied de page -->
 <div class="footer">
-    BTP PRO — Document généré le {{ now()->format('d/m/Y à H:i') }} — Réf: RAPP-{{ strtoupper(\Illuminate\Support\Str::random(6)) }}
+    BTP PRO — Document généré le {{ now()->format('d/m/Y à H:i') }}
 </div>
 
 </body>

@@ -13,7 +13,8 @@ class Depense extends Model
                 'montant',
                 'justificatif',
                 'responsable',
-                'date_depense'
+                'date_depense',
+                'planning_id',
         ];
 
         protected $casts = [
@@ -23,5 +24,9 @@ class Depense extends Model
         public function chantier()
         {
                 return $this->belongsTo(Chantier::class);
+        }
+        public function planning()
+        {
+                return $this->belongsTo(Planning::class);
         }
 }

@@ -7,6 +7,7 @@ use App\Models\Patron;
 use Illuminate\Support\Facades\Log;
 use App\Models\Chantier;
 use App\Models\User;
+use App\Models\FicheJournaliere;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 
@@ -21,21 +22,41 @@ class PatronController extends Controller
     {
         $user = Auth::user();
         $patron = Patron::where('email', $user->email)->first();
-        // dd($patron->id);
 
         $chantiers = Chantier::with('entreprises')
             ->whereHas('entreprises', function ($query) use ($user) {
                 $query->where('email', $user->email);
             })
             ->paginate(10);
-        $Nbrchantiers = Chantier::with('entreprises')
-            ->whereHas('entreprises', function ($query) use ($user) {
-                $query->where('email', $user->email);
-            })
-            ->count();
 
-        // dd($Nbrchantiers);
-        return view('users.dashboard', compact('user', 'chantiers', 'patron','Nbrchantiers'));
+        $Nbrchantiers = Chantier::whereHas('entreprises', function ($query) use ($user) {
+            $query->where('email', $user->email);
+        })->count();
+ 
+        $chantiersEnCours = Chantier::whereHas('entreprises', function ($query) use ($user) {
+            $query->where('email', $user->email);
+        })->where('statut', 'en_cours')->count();
+
+        $chantiersTermines = Chantier::whereHas('entreprises', function ($query) use ($user) {
+            $query->where('email', $user->email);
+        })->where('statut', 'termine')->count();
+
+        // $patron peut être null si aucune entreprise trouvée
+        $fichesAujourdhui = 0;
+        if ($patron) {
+            $fichesAujourdhui = FicheJournaliere::whereHas('chantier', function ($q) use ($patron) {
+                $q->where('entreprise_id', $patron->id);
+            })->whereDate('date', today())->count();
+        }
+
+        return view('users.dashboard', compact(
+            'chantiers',
+            'Nbrchantiers',
+            'chantiersEnCours',
+            'chantiersTermines',
+            'fichesAujourdhui',
+            'patron'
+        ));
     }
 
 

@@ -95,19 +95,20 @@
         </div>
 
         {{-- Abonnement --}}
+        {{-- Fiches journalières --}}
         <div class="col-xl-3 col-md-6">
             <div class="card border-0 shadow-sm h-100 card-hover">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <p class="text-muted mb-1 small fw-semibold">ABONNEMENT</p>
-                            <h2 class="mb-0 fw-bold">Premium</h2>
+                            <p class="text-muted mb-1 small fw-semibold">FICHES DU JOUR</p>
+                            <h2 class="mb-0 fw-bold">{{ $fichesAujourdhui ?? 0 }}</h2>
                             <small class="text-warning">
-                                <i class="bi bi-star-fill me-1"></i>Plan actif
+                                <i class="bi bi-journal-text me-1"></i>Aujourd'hui
                             </small>
                         </div>
                         <div class="stat-icon bg-warning bg-opacity-10 text-warning">
-                            <i class="bi bi-gem fs-2"></i>
+                            <i class="bi bi-journal-text fs-2"></i>
                         </div>
                     </div>
                 </div>
@@ -216,18 +217,13 @@
                                 @endif
                             </td>
                             <td class="px-4 py-3 text-center">
+                            
                                 <div class="btn-group btn-group-sm" role="group">
-                                    <a href="{{ route('devis.form', $chantier->id) }}" 
-                                       class="btn btn-outline-dark"
-                                       data-bs-toggle="tooltip"
-                                       title="Devis">
-                                        <i class="bi bi-file-earmark-text"></i>
-                                    </a>
-                                    <a href="{{ route('rapport.depenses.entreprise', $chantier->id) }}" 
-                                       class="btn btn-outline-primary"
-                                       data-bs-toggle="tooltip"
-                                       title="Voir détails">
-                                        <i class="bi bi-eye"></i>
+                                    <a href="{{ route('chantiers.details', $chantier->id) }}" 
+                                        class="btn btn-outline-primary"
+                                        data-bs-toggle="tooltip"
+                                        title="Voir Détails">
+                                            <i class="bi bi-eye"></i>
                                     </a>
                                     <button class="btn btn-outline-danger"
                                             data-bs-toggle="tooltip"

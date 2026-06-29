@@ -217,12 +217,6 @@
 <!-- Modal Ajouter Chantier -->
 <div class="modal fade" id="addChantierModal" tabindex="-1" aria-labelledby="addChantierModalLabel" aria-hidden="true">
     <div class="modal-dialog">
-          {{-- 'nom',
-        'description',
-        'statut',
-        'adresse',
-        'budget_total',
-        'entreprise_id' --}}
         <form action="{{ route('chantiers.store') }}" method="POST">
             @csrf
             <input type="hidden" name="patron_id" value="{{ $company->id }}">

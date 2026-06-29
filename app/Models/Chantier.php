@@ -27,4 +27,9 @@ class Chantier extends Model
     {
         return $this->hasMany(Devis::class);
     }
+
+    public function plannings()
+    {
+        return $this->hasMany(Planning::class);
+    }
 }
