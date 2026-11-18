@@ -1,11 +1,53 @@
 @import 'tailwindcss';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../vendor/livewire/livewire/src/Features/SupportPagination/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 @source '../**/*.blade.php';
 @source '../**/*.js';
+@source '../../app/**/*.php';
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+    --color-navy-950: #071a33;
+    --color-navy-900: #0b2545;
+    --color-navy-800: #163a6b;
+    --color-navy-700: #1f4f8f;
+    --color-brand-50: #fff4ed;
+    --color-brand-100: #ffe5d4;
+    --color-brand-500: #f06a22;
+    --color-brand-600: #e8520a;
+    --color-brand-700: #c04107;
+}
+
+@layer components {
+    .form-input {
+        @apply block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-xs placeholder:text-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-100 focus:outline-none disabled:bg-slate-50 disabled:text-slate-500;
+    }
+    .form-label {
+        @apply mb-1 block text-xs font-semibold tracking-wide text-slate-600 uppercase;
+    }
+    .table-base {
+        @apply min-w-full divide-y divide-slate-200 text-sm;
+    }
+    .table-base thead th {
+        @apply bg-slate-50 px-4 py-2.5 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase whitespace-nowrap;
+    }
+    .table-base tbody td {
+        @apply px-4 py-3 text-slate-700 align-middle;
+    }
+    .table-base td.text-right,
+    .table-base th.text-right {
+        @apply whitespace-nowrap;
+    }
+    .table-base tbody tr {
+        @apply hover:bg-slate-50/70;
+    }
+    .link {
+        @apply font-medium text-navy-800 hover:text-brand-600 hover:underline;
+    }
+}
+
+[x-cloak] {
+    display: none !important;
 }

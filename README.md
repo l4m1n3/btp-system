@@ -1,59 +1,93 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Gestion interne BTP/H
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Application de gestion interne pour une entreprise de BTP et d'hydraulique : **marchés**, **chantiers** (planning et avancement), **dépenses** internes et de chantier, **logistique** (matériel, stock), **RH** et **paie**.
 
-## About Laravel
+Laravel 12 · Livewire 3 · Tailwind CSS 4 · PostgreSQL · API mobile Sanctum · PDF (dompdf) · export Excel.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Modules
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+| Module | Contenu |
+|---|---|
+| Tableau de bord | Marchés par statut, carnet de commandes, encaissements, dépenses du mois (interne / chantiers), avancement et budget des chantiers, alertes (retards, dépassements, stock bas, pannes, contrats, dépenses à valider). |
+| Marchés & clients | Marchés en attente / en cours / suspendus / terminés / annulés, montants HT/TTC, décomptes et encaissements, reste à réaliser. |
+| Chantiers | Rattachés à un marché ; planning des tâches (avancement pondéré par le coût prévu), journal de chantier quotidien, personnel et matériel affectés, situation financière (budget, dépenses, matériaux, écart) en PDF. |
+| Dépenses | Une seule liste pour les dépenses **internes** (frais généraux) et **de chantier** (rattachables à une tâche). Catégories, fournisseurs, justificatif (privé), circuit de validation : seules les dépenses **validées** entrent dans les totaux. Exports PDF et Excel. |
+| Logistique | Matériel et engins (affectation, panne, maintenance → dépense), stock de matériaux au coût moyen pondéré (entrées, sorties vers chantier, inventaire, seuils d'alerte). |
+| RH | Employés et contrats, affectation, pointage journalier par chantier, congés et absences, avances. |
+| Paie (simple) | Mensuels : base − 1/30 par jour d'absence non payée ; journaliers : jours pointés × taux ; heures sup majorées ; primes, indemnités, retenues ; avances déduites ; bulletins et journal de paie PDF. À la **clôture**, la masse salariale est enregistrée en dépenses (par chantier d'imputation, sinon en interne). |
+| Rapports | Synthèse sur une période : facturé, encaissé, dépenses par catégorie, situation de chaque chantier. Rapport hebdomadaire envoyé chaque lundi 7 h à la direction. |
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Rôles
 
-## Learning Laravel
+| Rôle | Accès |
+|---|---|
+| Administrateur | Tout, y compris les utilisateurs et la réouverture d'une paie clôturée. |
+| Direction | Vue complète, marchés, chantiers, validation des dépenses, clôture de paie. |
+| Comptable | Dépenses (saisie et validation), catégories/fournisseurs, rapports, clôture de paie. |
+| Chef de chantier | **Uniquement ses chantiers** : planning, journal, dépenses (soumises à validation), pointage, sorties de stock. |
+| RH | Employés, pointage, congés, avances, préparation de la paie. |
+| Logistique | Matériel et stock. |
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+Les droits sont définis dans `config/permissions.php`.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Installation
 
-## Laravel Sponsors
+Prérequis : PHP 8.4, Composer, Node 20+, PostgreSQL.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+```bash
+composer install
+npm install && npm run build
+cp .env.example .env        # puis renseigner DB_*, ADMIN_*, BTP_ENTREPRISE_*
+php artisan key:generate
+php artisan migrate:fresh --seed       # ⚠ efface la base : schéma + catégories + compte admin
+php artisan db:seed --class=DemoSeeder # facultatif : données de démonstration
+php artisan serve
+```
 
-### Premium Partners
+Comptes de démonstration (mot de passe `password`) : `admin@demo.local`, `direction@demo.local`, `comptable@demo.local`, `chef1@demo.local`, `chef2@demo.local`, `rh@demo.local`, `logistique@demo.local`.
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+Rapport hebdomadaire : lancer le planificateur (`php artisan schedule:work` en local, ou une tâche cron `* * * * * php artisan schedule:run` en production) et configurer `MAIL_*`. Test manuel : `php artisan rapport:hebdomadaire`.
 
-## Contributing
+### Mise à jour depuis l'ancienne version
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+La refonte remplace l'ancien schéma (entreprises clientes, abonnements, devis…). Après avoir récupéré les fichiers :
 
-## Code of Conduct
+```bash
+bash scripts/nettoyer-ancienne-version.sh   # supprime les anciens fichiers devenus inutiles
+composer install && npm install && npm run build
+php artisan migrate:fresh --seed
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## API mobile
 
-## Security Vulnerabilities
+Authentification par jeton : `POST /api/login` (`email`, `password`, `appareil`) puis en-têtes `Authorization: Bearer <token>` et `Accept: application/json`.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+| Méthode | Route | Rôle |
+|---|---|---|
+| GET | `/api/me` | Profil et droits |
+| GET | `/api/references` | Catégories, fournisseurs, modes de paiement |
+| GET | `/api/chantiers`, `/api/chantiers/{id}` | Chantiers visibles avec tâches, avancement, budget |
+| PATCH | `/api/chantiers/{id}/taches/{tache}` | Avancement d'une tâche (`avancement` 0–100) |
+| GET/POST | `/api/chantiers/{id}/journal` | Rapports journaliers |
+| GET/POST | `/api/chantiers/{id}/pointage` | Pointage du jour (`date`, `pointages[]`) |
+| GET | `/api/articles` | Stock |
+| POST | `/api/chantiers/{id}/sorties-stock` | Sortie de matériaux |
+| GET/POST | `/api/depenses` | Dépenses (multipart avec `justificatif`) |
+| POST | `/api/logout` | Révoque le jeton |
 
-## License
+## Tests
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```bash
+php artisan test
+```
+
+41 tests : droits par rôle, isolement des chefs de chantier, circuit des dépenses, calculs de paie, stock, journal, API, rendu de toutes les pages et des PDF.
+
+## Organisation du code
+
+- `app/Enums` : statuts et listes (libellés et couleurs).
+- `app/Models` : modèles Eloquent et calculs simples (avancement, coût engagé…).
+- `app/Services` : règles métier (`DepenseService`, `PaieService`, `StockService`, `JournalService`, tableau de bord, rapport hebdomadaire).
+- `app/Livewire` : écrans ; `resources/views/livewire` : vues ; `resources/views/components` : composants d'interface.
+- `app/Http/Controllers/Api` : API mobile ; `DocumentController` : PDF, export Excel, justificatifs.
+- `config/btp.php` : identité de l'entreprise, paramètres de paie et d'alertes.

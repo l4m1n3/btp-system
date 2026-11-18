@@ -1,7 +1,5 @@
 <?php
 
-test('the application returns a successful response', function () {
-    $response = $this->get('/');
-
-    $response->assertStatus(200);
+it('affiche la page de connexion', function () {
+    $this->get('/login')->assertOk()->assertSee('Se connecter');
 });

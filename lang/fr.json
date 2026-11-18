@@ -1,0 +1,19 @@
+{
+    "Showing": "Affichage de",
+    "to": "à",
+    "of": "sur",
+    "results": "résultats",
+    "Previous": "Précédent",
+    "Next": "Suivant",
+    "pagination.previous": "&laquo; Précédent",
+    "pagination.next": "Suivant &raquo;",
+    "Go to page :page": "Aller à la page :page",
+    "Pagination Navigation": "Navigation de pagination",
+    "This action is unauthorized.": "Vous n'êtes pas autorisé à effectuer cette action.",
+    "Forbidden": "Accès refusé",
+    "Not Found": "Page introuvable",
+    "Page Expired": "Session expirée",
+    "Server Error": "Erreur serveur",
+    "Too Many Requests": "Trop de requêtes",
+    "Unauthorized": "Non autorisé"
+}

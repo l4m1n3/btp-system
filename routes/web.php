@@ -1,61 +1,59 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\PatronController;
-use App\Models\Patron;
-use App\Http\Controllers\ChantierController;
-use App\Http\Controllers\DevisController;
-use App\Http\Controllers\DepenseController;
-use App\Http\Controllers\RapportController;
-use App\Http\Controllers\FicheJournaliereController;
+use App\Http\Controllers\DocumentController;
+use App\Livewire;
+use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+    Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:10,1')->name('login.submit');
 });
 
+Route::middleware('auth')->group(function () {
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
-Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
-Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logoute');
+    Route::get('/', Livewire\Dashboard::class)->name('dashboard');
+    Route::get('/profil', Livewire\Profil::class)->name('profil');
 
-Route::get('/admin/dashboard', [PatronController::class, 'dashboardAdmin'])->middleware('auth')->name('admin.dashboard');
-Route::resource('patrons', PatronController::class)->middleware('auth');
-Route::get('/admin/entreprise', [PatronController::class, 'companies'])->middleware('auth')->name('admin.entreprise');
-Route::post('/admin/entreprise', [PatronController::class, 'store'])->middleware('auth')->name('admin.entreprise.store');
-Route::get('/admin/entreprise/details/{id}', [PatronController::class, 'details'])->middleware('auth')->name('admin.entreprise.details');
-Route::post('/admin/entreprise/details/{id}/chantier', [ChantierController::class, 'store'])->middleware('auth')->name('admin.chantier.store');
-Route::get('/rapports/entreprise/{id}', [RapportController::class, 'details'])->middleware('auth')->name('rapport.entreprise.details');
-//routes pour utilisateur simple
-Route::get('/dashboard', [PatronController::class, 'dashboardClient'])->middleware('auth')->name('dashboard');
-Route::resource('patrons', PatronController::class)->middleware('auth');
-Route::get('/entreprise', [PatronController::class, 'companies'])->middleware('auth')->name('entreprise');
-Route::post('/entreprise', [PatronController::class, 'store'])->middleware('auth')->name('entreprise.store');
-Route::get('/entreprise/details/{id}', [PatronController::class, 'details'])->middleware('auth')->name('entreprise.details');
-Route::post('/entreprise/details/{id}/chantier', [ChantierController::class, 'store'])->middleware('auth')->name('chantier.store');
-Route::post('/devis/import', [DevisController::class, 'import'])
-    ->name('devis.import');
-Route::get('devis/{id}/formulaire', [DevisController::class, 'show'])->name('devis.form');
-Route::post('devis/store', [DevisController::class, 'store'])->name('devis.store');
-Route::get('/rapports/entreprise/{id}', [RapportController::class, 'depenseEntreprise'])->middleware('auth')->name('rapport.depenses.entreprise');
-Route::get('/depenses/liste', [RapportController::class, 'depenseListe'])->middleware('auth')->name('rapport.depenses.liste');
-Route::post('/depenses/index', [RapportController::class, 'depenseListe'])->middleware('auth')->name('depenses.search');
-Route::post('/depenses/store', [RapportController::class, 'storeDepense'])->middleware('auth')->name('depenses.stores');
-Route::get('/rapports/generate-hebdomadaire', [RapportController::class, 'generateHebdomadaire'])->middleware('auth')->name('rapport.generateHebdomadaire');
-Route::get('/rapports/generate-mensuel', [RapportController::class, 'generateMensuel'])->middleware('auth')->name('rapport.generateMensuel');
-Route::post('/rapports/generate', [RapportController::class, 'generateRapport'])->middleware('auth')->name('rapport.generate');
-Route::get('/planning/{id}', [ChantierController::class, 'planning'])->middleware('auth')->name('planning.show');
-Route::post('/planning/store', [ChantierController::class, 'storePlanning'])->middleware('auth')->name('planning.store');
-Route::get('/planning/edit/{id}', [ChantierController::class, 'editPlanning'])->middleware('auth')->name('planning.edit');
-Route::put('/planning/update/{id}', [ChantierController::class, 'updatePlanning'])->middleware('auth')->name('planning.update');
-Route::post('/planning/delete/{id}', [ChantierController::class, 'deletePlanning'])->middleware('auth')->name('planning.destroy');
-Route::prefix('chantiers/{chantier}/fiches')->name('fiches.')->group(function () {
-    Route::get('/',         [FicheJournaliereController::class, 'index'])->name('index');
-    Route::get('/create',   [FicheJournaliereController::class, 'create'])->name('create');
-    Route::post('/',        [FicheJournaliereController::class, 'store'])->name('store');
-    Route::get('/{fiche}',  [FicheJournaliereController::class, 'show'])->name('show');
-    Route::get('/{fiche}/edit', [FicheJournaliereController::class, 'edit'])->name('edit');
-    Route::put('/{fiche}',  [FicheJournaliereController::class, 'update'])->name('update');
-    Route::delete('/{fiche}', [FicheJournaliereController::class, 'destroy'])->name('destroy');
+    // Marchés et clients
+    Route::get('/marches', Livewire\Marches\Index::class)->name('marches.index');
+    Route::get('/marches/{marche}', Livewire\Marches\Show::class)->name('marches.show');
+    Route::get('/clients', Livewire\Clients\Index::class)->name('clients.index');
+
+    // Chantiers
+    Route::get('/chantiers', Livewire\Chantiers\Index::class)->name('chantiers.index');
+    Route::get('/chantiers/{chantier}', Livewire\Chantiers\Show::class)->name('chantiers.show');
+    Route::get('/chantiers/{chantier}/journal/{rapport?}', Livewire\Chantiers\Journal::class)->name('chantiers.journal');
+
+    // Dépenses
+    Route::get('/depenses', Livewire\Depenses\Index::class)->name('depenses.index');
+    Route::get('/depenses/{depense}/justificatif', [DocumentController::class, 'justificatif'])->name('depenses.justificatif');
+    Route::get('/parametres/depenses', Livewire\Parametres\Depenses::class)->name('parametres.depenses');
+
+    // Logistique
+    Route::get('/materiels', Livewire\Logistique\Materiels::class)->name('materiels.index');
+    Route::get('/stock', Livewire\Logistique\Stock::class)->name('stock.index');
+
+    // RH et paie
+    Route::get('/employes', Livewire\Rh\Employes::class)->name('employes.index');
+    Route::get('/employes/{employe}', Livewire\Rh\EmployeShow::class)->name('employes.show');
+    Route::get('/pointage', Livewire\Rh\Pointage::class)->name('pointage.index');
+    Route::get('/conges', Livewire\Rh\Conges::class)->name('conges.index');
+    Route::get('/avances', Livewire\Rh\Avances::class)->name('avances.index');
+    Route::get('/paie', Livewire\Paie\Index::class)->name('paie.index');
+    Route::get('/paie/{periode}', Livewire\Paie\Periode::class)->name('paie.show');
+
+    // Rapports, documents et exports
+    Route::get('/rapports', Livewire\Rapports\Index::class)->name('rapports.index');
+    Route::prefix('documents')->group(function () {
+        Route::get('/bulletins/{bulletin}', [DocumentController::class, 'bulletin'])->name('pdf.bulletin');
+        Route::get('/paie/{periode}/journal', [DocumentController::class, 'journalPaie'])->name('pdf.journal-paie');
+        Route::get('/chantiers/{chantier}/situation', [DocumentController::class, 'chantier'])->name('pdf.chantier');
+        Route::get('/depenses.pdf', [DocumentController::class, 'depenses'])->name('pdf.depenses');
+        Route::get('/depenses.xlsx', [DocumentController::class, 'exportDepenses'])->name('export.depenses');
+    });
+
+    // Administration
+    Route::get('/utilisateurs', Livewire\Admin\Utilisateurs::class)->name('utilisateurs.index');
 });
-Route::get('/chantiers/{id}/details', [ChantierController::class, 'details'])->middleware('auth')->name('chantiers.details');

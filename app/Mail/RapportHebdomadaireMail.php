@@ -2,20 +2,31 @@
 
 namespace App\Mail;
 
-use Illuminate\Mail\Mailable;
-use Illuminate\Queue\SerializesModels;
 use Illuminate\Bus\Queueable;
+use Illuminate\Mail\Attachment;
+use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Content;
+use Illuminate\Mail\Mailables\Envelope;
+use Illuminate\Support\Carbon;
 
 class RapportHebdomadaireMail extends Mailable
 {
-    use Queueable, SerializesModels;
+    use Queueable;
 
-    public function __construct(private string $filePath) {}
+    public function __construct(public string $pdf, public Carbon $debut, public Carbon $fin) {}
 
-    public function build()
+    public function envelope(): Envelope
     {
-        return $this->subject('Rapport hebdomadaire des dépenses')
-            ->view('email.rapport')
-            ->attach($this->filePath);
+        return new Envelope(subject: 'Rapport hebdomadaire du '.$this->debut->format('d/m').' au '.$this->fin->format('d/m/Y'));
+    }
+
+    public function content(): Content
+    {
+        return new Content(view: 'mail.rapport-hebdomadaire');
+    }
+
+    public function attachments(): array
+    {
+        return [Attachment::fromData(fn () => $this->pdf, 'rapport-hebdomadaire-'.$this->debut->format('Y-m-d').'.pdf')->withMime('application/pdf')];
     }
 }
